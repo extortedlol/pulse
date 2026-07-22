@@ -2,776 +2,160 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#050507">
-  <meta name="description" content="Pulse Tweaks is a clean Windows tuning app for gaming, privacy, and everyday speed.">
-  <title>Pulse Tweaks | Take Control of Windows</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07070b">
+  <meta name="description" content="Pulse Tweaks gives you clean, reversible control over Windows performance, privacy, networking, and cleanup.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pulse Tweaks | Your PC. Your rules.">
+  <meta property="og:description" content="A sharper Windows setup without scripts or guesswork.">
+  <meta property="og:image" content="assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="assets/og.png">
+  <title>Pulse Tweaks | Your PC. Your rules.</title>
   <link rel="icon" href="assets/pulse-icon.ico">
   <style>
-    :root {
-      --black: #050507;
-      --black-2: #090a0e;
-      --panel: #0f1118;
-      --panel-2: #151824;
-      --line: #25293a;
-      --text: #f7f8fc;
-      --muted: #9299ad;
-      --purple: #7757ff;
-      --purple-2: #a991ff;
-      --cyan: #45d8ff;
-      --green: #43dda7;
-      --orange: #ffae62;
-      --radius: 22px;
-      --shadow: 0 28px 80px rgba(0, 0, 0, .46);
-    }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 50% -15%, rgba(119, 87, 255, .22), transparent 34rem),
-        var(--black);
-      font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
-      overflow-x: hidden;
-    }
-
-    button, a { font: inherit; }
-    a { color: inherit; text-decoration: none; }
-
-    .noise {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .025;
-      z-index: 20;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
-    }
-
-    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 15;
-      background: rgba(5, 5, 7, .78);
-      border-bottom: 1px solid rgba(255, 255, 255, .06);
-      backdrop-filter: blur(18px);
-    }
-
-    .nav {
-      height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.02em; }
-
-    .mark {
-      position: relative;
-      width: 38px;
-      height: 38px;
-      border: 1px solid rgba(169, 145, 255, .48);
-      border-radius: 12px;
-      background: linear-gradient(145deg, #1d1638, #0d0c15);
-      box-shadow: inset 0 0 22px rgba(119, 87, 255, .13), 0 0 22px rgba(119, 87, 255, .16);
-    }
-
-    .mark::before {
-      content: "";
-      position: absolute;
-      inset: 9px 7px;
-      background: var(--purple-2);
-      clip-path: polygon(0 53%, 25% 53%, 38% 7%, 55% 88%, 69% 38%, 100% 38%, 100% 52%, 78% 52%, 54% 100%, 37% 38%, 31% 67%, 0 67%);
-      filter: drop-shadow(0 0 7px var(--purple));
-    }
-
-    .nav-links { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 14px; }
-    .nav-links a:hover { color: var(--text); }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 46px;
-      padding: 0 19px;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      color: white;
-      background: var(--purple);
-      font-size: 14px;
-      font-weight: 750;
-      cursor: pointer;
-      transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
-    }
-
-    .button:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(119, 87, 255, .25); }
-    .button.secondary { background: rgba(255, 255, 255, .035); border-color: var(--line); color: #d9dcea; }
-    .button.secondary:hover { border-color: #4b5065; box-shadow: none; }
-    .button.small { min-height: 40px; padding: 0 15px; font-size: 13px; }
-
-    .menu-button { display: none; width: 42px; height: 42px; padding: 0; background: var(--panel); border: 1px solid var(--line); }
-
-    .hero {
-      position: relative;
-      min-height: 720px;
-      padding: 92px 0 70px;
-      text-align: center;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 285px;
-      width: 820px;
-      height: 360px;
-      transform: translateX(-50%);
-      border-radius: 50%;
-      background: rgba(119, 87, 255, .16);
-      filter: blur(100px);
-      z-index: -1;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 7px 12px;
-      border: 1px solid rgba(169, 145, 255, .23);
-      border-radius: 999px;
-      background: rgba(119, 87, 255, .08);
-      color: #c8bbff;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-
-    h1 {
-      max-width: 850px;
-      margin: 25px auto 18px;
-      font-size: clamp(48px, 7vw, 82px);
-      line-height: .98;
-      letter-spacing: -.06em;
-    }
-
-    .gradient-text {
-      color: transparent;
-      background: linear-gradient(90deg, #fff 5%, #b8a8ff 55%, #66ddff 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-    }
-
-    .hero-copy { max-width: 650px; margin: 0 auto; color: var(--muted); font-size: 18px; line-height: 1.7; }
-    .hero-actions { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
-    .tiny-note { margin-top: 13px; color: #666d7f; font-size: 12px; }
-
-    .app-window {
-      position: relative;
-      width: min(1050px, 100%);
-      height: 570px;
-      margin: 70px auto 0;
-      overflow: hidden;
-      border: 1px solid #292d3c;
-      border-radius: 18px;
-      background: #08090d;
-      box-shadow: var(--shadow), 0 0 0 1px rgba(255, 255, 255, .025) inset;
-      text-align: left;
-      transform: perspective(1300px) rotateX(2deg);
-    }
-
-    .window-bar { height: 38px; background: #000; border-bottom: 1px solid #171820; display: flex; align-items: center; justify-content: center; color: #7d8393; font-size: 10px; letter-spacing: .12em; }
-    .window-actions { position: absolute; right: 13px; top: 11px; display: flex; gap: 16px; color: #687082; }
-    .window-body { height: calc(100% - 38px); display: grid; grid-template-columns: 202px 1fr; }
-    .app-side { background: #0b0d12; border-right: 1px solid #191c26; padding: 20px 13px; }
-    .mini-brand { display: flex; align-items: center; gap: 9px; padding: 0 9px 22px; font-size: 12px; font-weight: 800; }
-    .mini-mark { width: 25px; height: 25px; border-radius: 8px; transform: scale(.8); }
-
-    .demo-tab {
-      width: 100%;
-      height: 40px;
-      margin: 3px 0;
-      padding: 0 12px;
-      border: 0;
-      border-radius: 9px;
-      color: #747c90;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-align: left;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 650;
-    }
-
-    .demo-tab:hover, .demo-tab.active { color: #fff; background: #171a25; }
-    .tab-box { width: 16px; height: 16px; border: 1px solid currentColor; border-radius: 4px; opacity: .85; }
-    .demo-tab.active .tab-box { border-color: var(--purple-2); background: rgba(119, 87, 255, .16); box-shadow: 0 0 8px rgba(119, 87, 255, .25); }
-
-    .app-main { padding: 25px 26px; background: radial-gradient(circle at 75% 0, rgba(119, 87, 255, .08), transparent 20rem), #08090d; }
-    .app-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
-    .app-heading h3 { margin: 0 0 5px; font-size: 22px; }
-    .app-heading p { margin: 0; color: #737b90; font-size: 11px; }
-    .locked-pill { padding: 7px 10px; border: 1px solid #2a2e3c; border-radius: 8px; color: var(--orange); background: #11131a; font-size: 9px; font-weight: 800; }
-
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .metric { padding: 13px; border: 1px solid #222634; border-radius: 11px; background: #10131b; }
-    .metric small { display: block; color: #6f778b; font-size: 8px; font-weight: 800; letter-spacing: .08em; }
-    .metric strong { display: block; margin-top: 7px; font-size: 20px; }
-    .metric span { color: var(--green); font-size: 9px; }
-
-    .demo-list { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px; }
-    .demo-item { display: flex; align-items: center; gap: 11px; min-height: 61px; padding: 10px 12px; border: 1px solid #222634; border-radius: 11px; background: #10131b; }
-    .item-icon { position: relative; width: 30px; height: 30px; border-radius: 9px; background: rgba(119, 87, 255, .13); border: 1px solid rgba(169, 145, 255, .17); }
-    .item-icon::before { content: ""; position: absolute; left: 8px; right: 8px; top: 9px; height: 2px; background: var(--purple-2); box-shadow: 0 5px 0 var(--purple-2), 0 10px 0 var(--purple-2); }
-    .item-copy { flex: 1; min-width: 0; }
-    .item-copy b { display: block; font-size: 10px; }
-    .item-copy small { display: block; margin-top: 3px; color: #737b90; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .switch { position: relative; width: 34px; height: 19px; border: 0; border-radius: 20px; background: #2a3040; cursor: pointer; transition: background .22s ease; }
-    .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: transform .22s ease; }
-    .switch.on { background: var(--purple); }
-    .switch.on::after { transform: translateX(15px); }
-    .demo-action { padding: 7px 11px; border: 0; border-radius: 7px; color: white; background: var(--purple); font-size: 8px; font-weight: 800; cursor: pointer; }
-    .tool-card { min-height: 62px; }
-    .tool-card .item-icon { background: rgba(69, 216, 255, .09); border-color: rgba(69, 216, 255, .17); }
-    .tool-card .item-icon::before { background: var(--cyan); box-shadow: 0 5px 0 var(--cyan), 0 10px 0 var(--cyan); }
-    .restore-demo { padding: 30px; border: 1px solid #242837; border-radius: 14px; background: #10131b; text-align: center; }
-    .restore-demo strong { display: block; font-size: 28px; }
-    .restore-demo p { margin: 7px 0 18px; color: #737b90; font-size: 10px; }
-
-    section { padding: 105px 0; }
-    .section-head { max-width: 650px; margin-bottom: 45px; }
-    .kicker { margin-bottom: 12px; color: var(--purple-2); font-size: 12px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
-    h2 { margin: 0; font-size: clamp(34px, 5vw, 52px); line-height: 1.08; letter-spacing: -.045em; }
-    .section-head p { margin: 17px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
-
-    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .feature-card { min-height: 230px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(21, 24, 36, .9), rgba(11, 12, 17, .9)); transition: transform .25s ease, border-color .25s ease; }
-    .feature-card:hover { transform: translateY(-5px); border-color: #494262; }
-    .feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid rgba(169, 145, 255, .19); border-radius: 14px; background: rgba(119, 87, 255, .1); color: #c8bcff; font-size: 18px; font-weight: 900; }
-    .feature-card h3 { margin: 23px 0 9px; font-size: 18px; }
-    .feature-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
-
-    .tweak-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
-    .tweak-chip { padding: 10px 13px; border: 1px solid #242837; border-radius: 10px; background: #0f1118; color: #afb5c7; font-size: 13px; }
-    .tweak-chip::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 9px; border-radius: 50%; background: var(--green); vertical-align: 1px; }
-
-    .safety { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; align-items: stretch; }
-    .safety-copy, .steps { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
-    .safety-copy { padding: 38px; background: radial-gradient(circle at 10% 10%, rgba(69, 216, 255, .09), transparent 18rem), var(--panel); }
-    .safety-copy h2 { font-size: 40px; }
-    .safety-copy p { color: var(--muted); line-height: 1.7; }
-    .steps { padding: 14px; }
-    .step { display: grid; grid-template-columns: 42px 1fr; gap: 13px; padding: 19px; border-radius: 14px; }
-    .step + .step { border-top: 1px solid #222532; }
-    .step-number { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: var(--purple-2); background: rgba(119, 87, 255, .1); font-size: 12px; font-weight: 900; }
-    .step b { display: block; margin: 2px 0 6px; }
-    .step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
-
-    .cta { position: relative; overflow: hidden; padding: 64px; border: 1px solid #38304f; border-radius: 28px; background: linear-gradient(135deg, #15102a, #0e1018 62%); text-align: center; }
-    .cta::before { content: ""; position: absolute; width: 330px; height: 330px; left: 50%; top: -230px; transform: translateX(-50%); border-radius: 50%; background: var(--purple); filter: blur(90px); opacity: .35; }
-    .cta h2, .cta p, .cta .hero-actions { position: relative; }
-    .cta p { color: var(--muted); }
-
-    footer { padding: 42px 0 55px; color: #666d7f; font-size: 13px; }
-    .footer-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #1c1e27; padding-top: 30px; }
-    .footer-links { display: flex; gap: 22px; }
-
-    .grid-field {
-      position: fixed;
-      inset: 0;
-      z-index: -3;
-      pointer-events: none;
-      background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
-      background-size: 56px 56px;
-      mask-image: linear-gradient(to bottom, black, transparent 70%);
-    }
-
-    .cursor-glow {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 420px;
-      height: 420px;
-      z-index: -2;
-      border-radius: 50%;
-      pointer-events: none;
-      background: rgba(119, 87, 255, .09);
-      filter: blur(85px);
-      transform: translate(-50%, -50%);
-      transition: left .18s ease-out, top .18s ease-out;
-    }
-
-    .discord-icon { width: 20px; height: 20px; fill: currentColor; flex: none; }
-    .discord-nav { display: inline-flex; align-items: center; gap: 8px; color: #fff !important; }
-    .discord-nav .discord-icon { color: #7f8cff; }
-    .discord-button { border-color: rgba(255,255,255,.16); background: #5865f2; color: white; }
-    .discord-button:hover { background: #6d78f6; border-color: rgba(255,255,255,.25); box-shadow: 0 12px 32px rgba(88,101,242,.32); }
-
-    .proof-row {
-      display: inline-flex;
-      align-items: center;
-      gap: 24px;
-      margin-top: 30px;
-      padding: 13px 20px;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 15px;
-      background: rgba(12,13,19,.72);
-      box-shadow: 0 16px 40px rgba(0,0,0,.22);
-      backdrop-filter: blur(12px);
-    }
-    .proof-row div { display: flex; align-items: baseline; gap: 7px; }
-    .proof-row strong { color: white; font-size: 18px; }
-    .proof-row span { color: #7f8799; font-size: 11px; }
-    .proof-row i { width: 1px; height: 22px; background: #282c39; }
-
-    .minimize-line { width: 9px; height: 1px; margin-top: 6px; background: currentColor; }
-    .app-window::before { content: ""; position: absolute; inset: 0; z-index: 3; border-radius: inherit; box-shadow: inset 0 1px rgba(255,255,255,.06); pointer-events: none; }
-    .app-window { border-color: #302b47; box-shadow: 0 38px 100px rgba(0,0,0,.6), 0 0 80px rgba(119,87,255,.1); }
-    .app-main { position: relative; }
-    .app-main::after { content: ""; position: absolute; right: -70px; top: -100px; width: 240px; height: 240px; border-radius: 50%; background: rgba(119,87,255,.08); filter: blur(65px); pointer-events: none; }
-
-    #features { border-top: 1px solid rgba(255,255,255,.055); border-bottom: 1px solid rgba(255,255,255,.055); background: linear-gradient(180deg, rgba(13,14,20,.86), rgba(7,8,11,.8)); }
-    .feature-card { position: relative; overflow: hidden; box-shadow: inset 0 1px rgba(255,255,255,.025), 0 20px 50px rgba(0,0,0,.12); }
-    .feature-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--card-accent, var(--purple)), transparent); opacity: .75; }
-    .feature-card::after { content: ""; position: absolute; width: 150px; height: 150px; right: -80px; top: -85px; border-radius: 50%; background: var(--card-accent, var(--purple)); filter: blur(65px); opacity: .08; }
-    .feature-card:nth-child(2), .feature-card:nth-child(4) { --card-accent: var(--cyan); }
-    .feature-card:nth-child(3), .feature-card:nth-child(6) { --card-accent: var(--green); }
-    .feature-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-    .feature-card:hover { transform: translateY(-7px); border-color: #59506f; box-shadow: 0 28px 65px rgba(0,0,0,.26); }
-
-    .tweak-chip { transition: color .2s ease, border-color .2s ease, transform .2s ease, background .2s ease; }
-    .tweak-chip:hover { color: #fff; border-color: #48405f; background: #15131f; transform: translateY(-2px); }
-    .cta { box-shadow: 0 34px 90px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.05); }
-
-    [hidden] { display: none !important; }
-    .release-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-      background: rgba(2, 2, 4, .82);
-      backdrop-filter: blur(16px);
-      opacity: 0;
-      transition: opacity .2s ease;
-    }
-    .release-modal.open { opacity: 1; }
-    .release-card {
-      position: relative;
-      width: min(470px, 100%);
-      padding: 38px;
-      overflow: hidden;
-      border: 1px solid #39304f;
-      border-radius: 24px;
-      background: radial-gradient(circle at 50% 0, rgba(119,87,255,.18), transparent 16rem), #0e1017;
-      box-shadow: 0 40px 120px rgba(0,0,0,.7);
-      text-align: center;
-      transform: translateY(12px) scale(.97);
-      transition: transform .2s ease;
-    }
-    .release-modal.open .release-card { transform: none; }
-    .release-card .mark { margin: 0 auto 20px; }
-    .release-card h2 { font-size: 38px; }
-    .release-card p { margin: 14px auto 25px; color: var(--muted); line-height: 1.65; }
-    .release-actions { display: flex; justify-content: center; gap: 10px; }
-    .release-close { border-color: #303443; background: #171a23; color: #a8aec0; }
-    .release-close:hover { background: #20242f; box-shadow: none; }
-
-    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    @media (max-width: 900px) {
-      .nav-links { display: none; position: absolute; left: 20px; right: 20px; top: 66px; flex-direction: column; align-items: stretch; gap: 0; padding: 10px; border: 1px solid var(--line); border-radius: 14px; background: #0b0c11; box-shadow: var(--shadow); }
-      .nav-links.open { display: flex; }
-      .nav-links a { padding: 13px; }
-      .nav-links .button { margin-top: 6px; }
-      .menu-button { display: inline-flex; }
-      .app-window { height: auto; min-height: 490px; transform: none; }
-      .window-body { grid-template-columns: 1fr; }
-      .app-side { display: flex; gap: 6px; overflow-x: auto; border-right: 0; border-bottom: 1px solid #191c26; }
-      .mini-brand { display: none; }
-      .demo-tab { min-width: 100px; text-align: center; }
-      .metrics { grid-template-columns: repeat(2, 1fr); }
-      .feature-grid { grid-template-columns: repeat(2, 1fr); }
-      .safety { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 620px) {
-      .wrap { width: min(100% - 24px, 1180px); }
-      .hero { padding-top: 68px; }
-      h1 { font-size: 48px; }
-      .hero-copy { font-size: 16px; }
-      .hero-actions { flex-direction: column; }
-      .hero-actions .button { width: 100%; }
-      .app-window { margin-top: 45px; }
-      .app-main { padding: 20px 14px; }
-      .demo-list { grid-template-columns: 1fr; }
-      .feature-grid { grid-template-columns: 1fr; }
-      section { padding: 76px 0; }
-      .cta { padding: 46px 20px; }
-      .footer-row { flex-direction: column; align-items: flex-start; gap: 20px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
-    }
+    :root{--bg:#07070b;--panel:#10121a;--panel2:#161925;--line:rgba(255,255,255,.09);--text:#f8f8fc;--muted:#969bad;--dim:#666d80;--p:#7b5cff;--pl:#ad9bff;--c:#48d9ff;--g:#43dda7;--o:#ffb45f;--shadow:0 30px 100px rgba(0,0,0,.55)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;overflow-x:hidden;color:var(--text);background:radial-gradient(circle at 50% -10%,rgba(123,92,255,.2),transparent 34rem),linear-gradient(180deg,#07070b,#0a0b11 55%,#07070b);font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}body:before{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(#000,transparent 78%)}::selection{background:rgba(123,92,255,.75);color:#fff}a{color:inherit;text-decoration:none}button{font:inherit}.wrap{width:min(1180px,calc(100% - 40px));margin:auto}.ambient{position:fixed;width:430px;height:430px;z-index:-2;border-radius:50%;pointer-events:none;background:rgba(123,92,255,.09);filter:blur(85px);transform:translate(-50%,-50%);transition:left .14s,top .14s}
+    .topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(7,7,11,.76);backdrop-filter:blur(20px)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.03em}.mark{position:relative;display:grid;place-items:center;width:38px;height:38px;overflow:hidden;border:1px solid rgba(173,155,255,.45);border-radius:12px;background:linear-gradient(145deg,#251c4b,#111019);box-shadow:inset 0 0 20px rgba(123,92,255,.22),0 0 24px rgba(123,92,255,.13)}.mark:before{content:"";width:24px;height:12px;background:var(--pl);clip-path:polygon(0 45%,20% 45%,32% 0,48% 100%,64% 30%,76% 45%,100% 45%,100% 60%,71% 60%,64% 50%,47% 100%,32% 36%,26% 60%,0 60%);filter:drop-shadow(0 0 6px var(--p))}.brand small{display:block;color:var(--dim);font-size:8px;letter-spacing:.15em}.links{display:flex;align-items:center;gap:28px;color:var(--muted);font-size:13px;font-weight:650}.links>a:not(.btn):hover{color:#fff}.menu{display:none;width:44px;height:40px;border:1px solid var(--line);border-radius:11px;color:#fff;background:var(--panel);font-size:10px;font-weight:800;cursor:pointer}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 20px;border:1px solid transparent;border-radius:12px;color:#fff;background:var(--p);box-shadow:0 14px 36px rgba(123,92,255,.25);font-size:13px;font-weight:800;cursor:pointer;transition:.2s}.btn:hover{transform:translateY(-2px);background:#896cff;box-shadow:0 18px 44px rgba(123,92,255,.35)}.btn.small{min-height:40px;padding:0 15px;font-size:12px;box-shadow:none}.btn.ghost{border-color:var(--line);background:rgba(255,255,255,.035);box-shadow:none}.btn.ghost:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.065)}.btn.discord{background:#5865f2;box-shadow:0 14px 36px rgba(88,101,242,.22)}.btn:focus-visible,.menu:focus-visible{outline:3px solid rgba(72,217,255,.45);outline-offset:3px}
+    .hero{position:relative;display:grid;grid-template-columns:.88fr 1.12fr;align-items:center;gap:62px;min-height:760px;padding:92px 0 72px}.hero:before{content:"";position:absolute;width:580px;height:580px;right:-160px;top:70px;z-index:-1;border-radius:50%;background:rgba(72,217,255,.07);filter:blur(110px)}.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:1px solid rgba(173,155,255,.23);border-radius:99px;color:#cabfff;background:rgba(123,92,255,.08);font-size:10px;font-weight:800;letter-spacing:.13em}.dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 12px var(--g)}h1{margin:23px 0 22px;font-size:clamp(52px,6vw,82px);line-height:.96;letter-spacing:-.065em}.gradient{color:transparent;background:linear-gradient(90deg,#fff,#baaaff 52%,#63ddff);background-clip:text;-webkit-background-clip:text}.lead{margin:0;max-width:590px;color:var(--muted);font-size:17px;line-height:1.75}.actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:30px}.facts{display:flex;flex-wrap:wrap;gap:18px;margin-top:26px;color:var(--dim);font-size:11px}.facts span{display:flex;align-items:center;gap:7px}.facts i{width:5px;height:5px;border-radius:50%;background:var(--g)}
+    .shot{padding:1px;border-radius:20px;background:linear-gradient(145deg,rgba(173,155,255,.55),rgba(72,217,255,.08) 52%,rgba(255,255,255,.13));box-shadow:var(--shadow),0 0 80px rgba(123,92,255,.12);transform:perspective(1250px) rotateY(-3deg)}.app{min-height:520px;overflow:hidden;border-radius:19px;background:#090b11}.appbar{height:42px;display:flex;align-items:center;padding:0 13px 0 17px;border-bottom:1px solid #191c27;color:#a8aebe;background:#0c0f16;font-size:10px}.traffic{display:flex;gap:9px;margin-left:auto}.traffic i{width:10px;height:10px;border-radius:50%}.traffic i:nth-child(1){background:#febc2e}.traffic i:nth-child(2){background:#28c840}.traffic i:nth-child(3){background:#ff5f57}.appbody{display:grid;grid-template-columns:160px 1fr;min-height:478px}.sidebar{padding:20px 12px;border-right:1px solid #191c27;background:#0c0f16}.mini{display:flex;align-items:center;gap:8px;padding:0 7px 20px;font-size:11px;font-weight:800}.mini .mark{width:28px;height:28px;border-radius:9px}.navitem{display:flex;align-items:center;gap:8px;min-height:38px;margin:3px 0;padding:0 9px;border-radius:9px;color:#747b8e;font-size:10px;font-weight:650}.navitem.active{color:#fff;background:#191c28}.ico{display:grid;place-items:center;width:18px;height:18px;border:1px solid currentColor;border-radius:5px;font-size:6px}.appmain{padding:23px 21px;background:radial-gradient(circle at 80% 0,rgba(123,92,255,.09),transparent 18rem),#090b11}.apphead{display:flex;align-items:center;justify-content:space-between}.apphead h3{margin:0;font-size:20px}.apphead p{margin:4px 0 0;color:#747b8e;font-size:9px}.ready{padding:7px 9px;border:1px solid rgba(67,221,167,.18);border-radius:8px;color:var(--g);background:rgba(67,221,167,.07);font-size:8px;font-weight:800}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}.metric,.setting{border:1px solid #222635;border-radius:11px;background:#11141d}.metric{padding:12px}.metric small{display:block;color:#666e82;font-size:7px;font-weight:800}.metric strong{display:block;margin:6px 0 2px;font-size:18px}.metric span{color:var(--g);font-size:8px}.settings{display:grid;gap:8px;margin-top:12px}.setting{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 12px}.sico{display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(173,155,255,.18);border-radius:9px;color:var(--pl);background:rgba(123,92,255,.1);font-size:8px;font-weight:900}.scopy{flex:1;min-width:0}.scopy b{display:block;font-size:9px}.scopy span{display:block;margin-top:3px;overflow:hidden;color:#6f7689;font-size:8px;text-overflow:ellipsis;white-space:nowrap}.toggle{position:relative;width:34px;height:20px;border:0;border-radius:20px;background:#293041;cursor:pointer}.toggle:after{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.2s}.toggle.on{background:var(--p)}.toggle.on:after{transform:translateX(14px)}
+    .ticker{overflow:hidden;border-block:1px solid var(--line);background:rgba(255,255,255,.018)}.track{width:max-content;display:flex;gap:34px;padding:16px 0;animation:scroll 27s linear infinite;color:#858b9e;font-size:11px;font-weight:700}.track span:before{content:"";display:inline-block;width:5px;height:5px;margin-right:34px;border-radius:50%;background:var(--p);box-shadow:0 0 9px var(--p);vertical-align:2px}@keyframes scroll{to{transform:translateX(-50%)}}
+    section{padding:104px 0}.head{display:grid;grid-template-columns:.8fr 1.2fr;gap:48px;align-items:end;margin-bottom:42px}.kicker{margin-bottom:13px;color:var(--pl);font-size:10px;font-weight:850;letter-spacing:.14em}.head h2,.download h2,.control h2{margin:0;font-size:clamp(36px,4.8vw,58px);line-height:1.03;letter-spacing:-.055em}.head p{margin:0;max-width:560px;color:var(--muted);font-size:15px;line-height:1.75}.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{position:relative;min-height:220px;overflow:hidden;padding:27px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(20,23,34,.96),rgba(11,12,18,.96));transition:.25s}.card:hover{transform:translateY(-5px);border-color:rgba(173,155,255,.28)}.card:after{content:"";position:absolute;width:190px;height:190px;right:-105px;top:-110px;border-radius:50%;background:var(--accent,var(--p));filter:blur(75px);opacity:.13}.wide{grid-column:span 7}.narrow{grid-column:span 5}.third{grid-column:span 4}.cyan{--accent:var(--c)}.green{--accent:var(--g)}.orange{--accent:var(--o)}.cardicon{display:grid;place-items:center;width:46px;height:46px;border:1px solid rgba(173,155,255,.2);border-radius:14px;color:var(--pl);background:rgba(123,92,255,.1);font-size:10px;font-weight:900}.card h3{margin:27px 0 10px;font-size:19px}.card p{margin:0;max-width:480px;color:var(--muted);font-size:13px;line-height:1.7}.number{position:absolute;right:22px;bottom:12px;color:rgba(255,255,255,.035);font-size:72px;font-weight:900}
+    .controlsection{border-block:1px solid var(--line);background:rgba(255,255,255,.015)}.controlgrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:54px;align-items:center}.control p{max-width:520px;color:var(--muted);line-height:1.75}.steps{display:grid;gap:10px}.step{display:grid;grid-template-columns:43px 1fr;gap:14px;padding:19px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.stepno{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;color:var(--pl);background:rgba(123,92,255,.1);font-size:10px;font-weight:900}.step b{display:block;margin:2px 0 5px;font-size:14px}.step p{margin:0;color:var(--muted);font-size:12px}.categories{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.category{padding:22px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.category small{color:var(--dim);font-size:9px;font-weight:800}.category h3{margin:10px 0 16px}.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{padding:7px 9px;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#a8adbd;background:rgba(255,255,255,.025);font-size:9px}
+    .download{position:relative;overflow:hidden;border:1px solid rgba(173,155,255,.24);border-radius:28px;background:linear-gradient(135deg,#18112f,#10121b 48%,#0b1118);box-shadow:var(--shadow)}.download:before{content:"";position:absolute;width:480px;height:480px;left:-260px;top:-340px;border-radius:50%;background:var(--p);filter:blur(110px);opacity:.3}.downloadgrid{position:relative;display:grid;grid-template-columns:1fr .85fr;gap:26px;padding:55px}.download p{max-width:560px;color:var(--muted);line-height:1.7}.file{padding:23px;border:1px solid var(--line);border-radius:18px;background:rgba(8,9,14,.68);backdrop-filter:blur(15px)}.filehead{display:flex;align-items:center;gap:13px}.fileicon{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;color:var(--c);background:rgba(72,217,255,.09);font-size:10px;font-weight:900}.filehead b,.filehead span{display:block}.filehead span{margin-top:3px;color:var(--dim);font-size:10px}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}.meta div{padding:10px;border:1px solid rgba(255,255,255,.065);border-radius:10px}.meta small{display:block;color:var(--dim);font-size:8px}.meta strong{display:block;margin-top:4px;font-size:11px}.file .btn{width:100%}.hash{margin-top:12px;color:var(--dim);font-size:9px;overflow-wrap:anywhere}.copy{padding:0;border:0;color:#beb3ee;background:transparent;cursor:pointer}.note{margin-top:10px;color:#777d90;font-size:10px}.license{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-top:14px;padding:25px 28px;border:1px solid var(--line);border-radius:19px;background:var(--panel)}.license h3{margin:0 0 6px}.license p{margin:0;color:var(--muted);font-size:13px}
+    footer{padding:44px 0 55px;color:var(--dim);font-size:11px}.footer{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:28px;border-top:1px solid var(--line)}.footerlinks{display:flex;gap:20px}.footerlinks a:hover{color:#fff}.reveal{opacity:0;transform:translateY(20px);transition:.65s}.reveal.visible{opacity:1;transform:none}
+    @media(max-width:980px){.hero{grid-template-columns:1fr;gap:50px}.shot{transform:none}.head{grid-template-columns:1fr;gap:18px}.wide,.narrow,.third{grid-column:span 6}.controlgrid,.downloadgrid{grid-template-columns:1fr}.categories{grid-template-columns:1fr 1fr}}
+    @media(max-width:760px){.menu{display:block}.links{position:absolute;left:20px;right:20px;top:64px;display:none;flex-direction:column;align-items:stretch;gap:0;padding:10px;border:1px solid var(--line);border-radius:14px;background:#0c0e15;box-shadow:var(--shadow)}.links.open{display:flex}.links a{padding:13px}.appbody{grid-template-columns:1fr}.sidebar{display:flex;gap:3px;overflow:auto;padding:10px;border-right:0;border-bottom:1px solid #191c27}.mini{display:none}.navitem{min-width:92px;justify-content:center}.downloadgrid{padding:38px 24px}.license{grid-template-columns:1fr}}
+    @media(max-width:580px){.wrap{width:min(100% - 24px,1180px)}.hero{min-height:0;padding:62px 0}h1{font-size:49px}.lead{font-size:15px}.actions{flex-direction:column}.actions .btn{width:100%}.appmain{padding:18px 12px}.metric:nth-child(3),.setting:nth-child(3){display:none}.metrics{grid-template-columns:1fr 1fr}section{padding:76px 0}.bento{grid-template-columns:1fr}.wide,.narrow,.third{grid-column:auto}.categories{grid-template-columns:1fr}.meta{grid-template-columns:1fr}.footer{align-items:flex-start;flex-direction:column}.footerlinks{flex-wrap:wrap}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    /* Human polish pass: quieter surfaces, less decorative chrome, smoother motion. */
+    body{background:radial-gradient(circle at 73% 5%,rgba(123,92,255,.09),transparent 30rem),#090a0f}
+    body:before{background:radial-gradient(circle at 50% 0,rgba(255,255,255,.025),transparent 42rem);mask-image:none}
+    .ambient{display:none}
+    .progress{position:fixed;left:0;top:0;z-index:120;width:0;height:2px;background:linear-gradient(90deg,var(--p),var(--c));box-shadow:0 0 12px rgba(123,92,255,.5)}
+    .topbar{background:rgba(9,10,15,.84);backdrop-filter:blur(18px)}
+    .nav{height:68px}
+    .links>a:not(.btn){position:relative;padding:25px 0}
+    .links>a:not(.btn):after{content:"";position:absolute;left:0;right:100%;bottom:17px;height:1px;background:var(--pl);transition:right .28s cubic-bezier(.22,1,.36,1)}
+    .links>a:not(.btn):hover:after{right:0}
+    .btn{min-height:46px;border-radius:10px;box-shadow:0 9px 24px rgba(123,92,255,.18);transition:transform .28s cubic-bezier(.22,1,.36,1),background .2s,border-color .2s,box-shadow .28s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(123,92,255,.24)}
+    .hero{min-height:710px;padding:86px 0 76px}
+    .hero:before{opacity:.45}
+    .eyebrow{padding:0;border:0;border-radius:0;color:#8d92a4;background:transparent;letter-spacing:.12em}
+    .dot{width:6px;height:6px;box-shadow:0 0 8px rgba(67,221,167,.65)}
+    .gradient{background:linear-gradient(90deg,#fff 0%,#b8a8ff 72%);background-clip:text;-webkit-background-clip:text}
+    .hero>div:first-child{animation:intro-copy .8s cubic-bezier(.22,1,.36,1) both}
+    .shot{border:1px solid #292c38;padding:0;background:#11131a;box-shadow:0 32px 80px rgba(0,0,0,.46);transform:none;transition:transform .18s ease-out,box-shadow .35s;will-change:transform;animation:intro-shot .95s .08s cubic-bezier(.22,1,.36,1) both}
+    .shot:hover{box-shadow:0 38px 95px rgba(0,0,0,.55),0 0 45px rgba(123,92,255,.06)}
+    .app{border-radius:19px}
+    .quick-facts,.facts{color:#747a8b}
+    .bento{grid-template-columns:1fr 1fr;gap:12px}
+    .bento .card{grid-column:auto;min-height:188px;padding:24px;border-radius:14px;background:#0f1118}
+    .bento .card:last-child{grid-column:1/-1;min-height:170px}
+    .card:after,.number{display:none}
+    .card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.15);background:#12141d}
+    .cardicon{width:40px;height:40px;border:0;border-radius:10px;background:#191624}
+    .card h3{margin:22px 0 8px}
+    .controlsection{background:transparent}
+    .step{border-radius:12px;background:#0f1118;transition:border-color .25s,transform .25s}
+    .step:hover{transform:translateX(3px);border-color:rgba(255,255,255,.15)}
+    .category{border-radius:12px;background:#0f1118;transition:border-color .25s,background .25s}
+    .category:hover{border-color:rgba(255,255,255,.15);background:#12141d}
+    .download{border-color:var(--line);border-radius:18px;background:#0d1017;box-shadow:0 25px 70px rgba(0,0,0,.4)}
+    .download:before{display:none}
+    .file{border-radius:13px;background:#090b10}
+    .license{border-radius:13px;background:#0f1118}
+    .reveal{opacity:0;transform:translateY(14px);filter:blur(5px);transition:opacity .72s cubic-bezier(.22,1,.36,1),transform .72s cubic-bezier(.22,1,.36,1),filter .72s}
+    .reveal.visible{opacity:1;transform:none;filter:none}
+    .bento .reveal:nth-child(2),.categories .reveal:nth-child(2){transition-delay:.07s}
+    .bento .reveal:nth-child(3),.categories .reveal:nth-child(3){transition-delay:.12s}
+    .bento .reveal:nth-child(4),.categories .reveal:nth-child(4){transition-delay:.17s}
+    .bento .reveal:nth-child(5){transition-delay:.22s}
+    @keyframes intro-copy{from{opacity:0;transform:translateY(18px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+    @keyframes intro-shot{from{opacity:0;transform:translateY(22px) scale(.985);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+    @media(max-width:980px){.bento{grid-template-columns:1fr 1fr}.shot{transform:none!important}}
+    @media(max-width:620px){.bento{grid-template-columns:1fr}.bento .card:last-child{grid-column:auto}.hero{padding-top:58px}.links>a:not(.btn){padding:13px}.links>a:not(.btn):after{display:none}}
   </style>
 </head>
 <body>
-  <div class="noise"></div>
-  <div class="grid-field"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
-
-  <header class="topbar">
-    <nav class="nav wrap" aria-label="Main navigation">
-      <a class="brand" href="#top" aria-label="Pulse Tweaks home">
-        <span class="mark" aria-hidden="true"></span>
-        <span>Pulse Tweaks</span>
-      </a>
-      <div class="nav-links" id="navLinks">
-        <a href="#features">Features</a>
-        <a href="#tweaks">Tweaks</a>
-        <a href="#safety">Safety</a>
-        <a class="discord-nav" href="https://discord.gg/yTgjHSPf2J" target="_blank" rel="noopener noreferrer"><svg class="discord-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 6.2c3.3-1.5 6.5-1.5 9.8 0 2 2.8 3 5.8 2.7 8.9-1.8 1.8-3.8 2.8-6 3.1l-.8-1.2c1.1-.3 2-.7 2.8-1.3-2.3 1.1-4.9 1.1-7.2 0 .8.6 1.7 1 2.8 1.3l-.8 1.2c-2.2-.3-4.2-1.3-6-3.1-.3-3.1.7-6.1 2.7-8.9Z"/><circle cx="9.4" cy="12.1" r="1.25" fill="#5865f2"/><circle cx="14.6" cy="12.1" r="1.25" fill="#5865f2"/></svg><span>Join Discord</span></a>
-        <a class="button small release-button" href="#release">Download</a>
+  <div class="progress" id="progress"></div>
+  <div class="ambient" id="ambient"></div>
+  <header class="topbar"><nav class="nav wrap" aria-label="Main navigation">
+    <a class="brand" href="#top"><span class="mark"></span><span>Pulse Tweaks<small>WINDOWS CONTROL</small></span></a>
+    <div class="links" id="links"><a href="#features">Features</a><a href="#how">How it works</a><a href="#tweaks">Tweaks</a><a href="#license">Get a key</a><a class="btn small" href="downloads/PulseTweaks.exe" download>Download v0.0.1</a></div>
+    <button class="menu" id="menu" type="button" aria-expanded="false">MENU</button>
+  </nav></header>
+  <main>
+    <div class="hero wrap" id="top">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>PULSE FOR WINDOWS &nbsp; V0.0.1</div>
+        <h1>Windows, set up<br><span class="gradient">your way.</span></h1>
+        <p class="lead">Pulse puts the Windows settings you actually care about in one place. See what each setting does, change it, and undo supported changes without touching the command line.</p>
+        <div class="actions"><a class="btn" href="downloads/PulseTweaks.exe" download>Download for Windows <span>&darr;</span></a><a class="btn ghost" href="#features">Explore Pulse <span>&rarr;</span></a></div>
+        <div class="facts"><span><i></i>Windows 10 and 11</span><span><i></i>64-bit</span><span><i></i>License required</span></div>
       </div>
-      <button class="button menu-button" id="menuButton" aria-label="Open menu" aria-expanded="false">☰</button>
-    </nav>
-  </header>
-
-  <main id="top">
-    <section class="hero wrap">
-      <h1>Your PC.<br><span class="gradient-text">Your rules.</span></h1>
-      <p class="hero-copy">Control gaming, privacy, network settings and background apps from one sharp control panel. Undo any change whenever you want.</p>
-      <div class="hero-actions">
-        <a class="button release-button" href="#release">Download project <span>↓</span></a>
-        <a class="button discord-button" href="https://discord.gg/yTgjHSPf2J" target="_blank" rel="noopener noreferrer"><svg class="discord-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 6.2c3.3-1.5 6.5-1.5 9.8 0 2 2.8 3 5.8 2.7 8.9-1.8 1.8-3.8 2.8-6 3.1l-.8-1.2c1.1-.3 2-.7 2.8-1.3-2.3 1.1-4.9 1.1-7.2 0 .8.6 1.7 1 2.8 1.3l-.8 1.2c-2.2-.3-4.2-1.3-6-3.1-.3-3.1.7-6.1 2.7-8.9Z"/><circle cx="9.4" cy="12.1" r="1.25" fill="#5865f2"/><circle cx="14.6" cy="12.1" r="1.25" fill="#5865f2"/></svg><span>Join Discord</span></a>
-      </div>
-      <div class="tiny-note">Windows 10 and 11 · 39 settings · Python version</div>
-      <div class="proof-row reveal">
-        <div><strong>39</strong><span>real settings</span></div>
-        <i></i>
-        <div><strong>7</strong><span>clean pages</span></div>
-        <i></i>
-        <div><strong>1</strong><span>click undo</span></div>
-      </div>
-
-      <div class="app-window reveal" aria-label="Interactive Pulse Tweaks preview">
-        <div class="window-bar">PULSE TWEAKS <div class="window-actions"><span class="minimize-line"></span><span>×</span></div></div>
-        <div class="window-body">
-          <aside class="app-side">
-            <div class="mini-brand"><span class="mark mini-mark"></span> PULSE</div>
-            <button class="demo-tab active" data-tab="Home"><span class="tab-box"></span>Dashboard</button>
-            <button class="demo-tab" data-tab="Performance"><span class="tab-box"></span>Performance</button>
-            <button class="demo-tab" data-tab="Network"><span class="tab-box"></span>Network</button>
-            <button class="demo-tab" data-tab="Privacy"><span class="tab-box"></span>Privacy</button>
-            <button class="demo-tab" data-tab="System"><span class="tab-box"></span>System</button>
-            <button class="demo-tab" data-tab="Cleanup"><span class="tab-box"></span>Cleanup</button>
-            <button class="demo-tab" data-tab="Restore"><span class="tab-box"></span>Restore</button>
-          </aside>
-          <div class="app-main">
-            <div class="app-heading">
-              <div><h3 id="demoTitle">Home</h3><p id="demoSubtitle">See your PC and choose a setup</p></div>
-              <span class="locked-pill" id="demoBadge">QUICK SETUPS</span>
+      <div class="shot" aria-label="Pulse Tweaks interface preview">
+        <div class="app"><div class="appbar">Pulse Tweaks <span class="traffic"><i></i><i></i><i></i></span></div>
+          <div class="appbody"><aside class="sidebar"><div class="mini"><span class="mark"></span>PULSE</div><div class="navitem active"><span class="ico">HM</span>Home</div><div class="navitem"><span class="ico">PF</span>Performance</div><div class="navitem"><span class="ico">NW</span>Network</div><div class="navitem"><span class="ico">PV</span>Privacy</div><div class="navitem"><span class="ico">CL</span>Cleanup</div></aside>
+            <div class="appmain"><div class="apphead"><div><h3>System overview</h3><p>Your PC is ready for optimization.</p></div><span class="ready">READY</span></div>
+              <div class="metrics"><div class="metric"><small>CPU LOAD</small><strong>18%</strong><span>Normal</span></div><div class="metric"><small>MEMORY</small><strong>42%</strong><span>Ready</span></div><div class="metric"><small>ACTIVE</small><strong>14</strong><span>Enabled</span></div></div>
+              <div class="settings">
+                <div class="setting"><span class="sico">FPS</span><span class="scopy"><b>Gaming performance</b><span>Reduce background work while you play.</span></span><button class="toggle on" type="button" aria-label="Toggle gaming performance" aria-pressed="true"></button></div>
+                <div class="setting"><span class="sico">NET</span><span class="scopy"><b>Network control</b><span>Manage Windows sharing and limits.</span></span><button class="toggle on" type="button" aria-label="Toggle network control" aria-pressed="true"></button></div>
+                <div class="setting"><span class="sico">PRV</span><span class="scopy"><b>Privacy cleanup</b><span>Reduce unwanted tracking and suggestions.</span></span><button class="toggle" type="button" aria-label="Toggle privacy cleanup" aria-pressed="false"></button></div>
+              </div>
             </div>
-            <div class="metrics" id="demoMetrics">
-              <div class="metric"><small>CPU LOAD</small><strong>18%</strong><span>Normal</span></div>
-              <div class="metric"><small>MEMORY</small><strong>42%</strong><span>Ready</span></div>
-              <div class="metric"><small>DISK USED</small><strong>61%</strong><span>Healthy</span></div>
-              <div class="metric"><small>ACTIVE</small><strong>14</strong><span>On</span></div>
-            </div>
-            <div class="demo-list" id="demoList"></div>
           </div>
         </div>
       </div>
-    </section>
-
-    <section id="features">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="kicker">Everything in one place</div>
-          <h2>Simple controls. Real Windows changes.</h2>
-          <p>No confusing scripts or long setup guides. Pick a setting, read what it does, and switch it on.</p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 14h6l-1 8 9-13h-6V2Z"/></svg></div>
-            <h3>Gaming speed</h3><p>Cut background work, improve game priority and make Windows feel quicker.</p>
-          </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="m7 11 10-4M7 13l10 4"/></svg></div>
-            <h3>Network control</h3><p>Stop update sharing and change Windows network limits from one page.</p>
-          </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 10-4.6-2-8-5-8-10V7l8-4Z"/><path d="m9 12 2 2 4-5"/></svg></div>
-            <h3>Less tracking</h3><p>Turn off ad IDs, activity history, extra data sharing and unwanted tips.</p>
-          </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg></div>
-            <h3>Live PC view</h3><p>See CPU, memory, drive use and active settings from the home page.</p>
-          </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 17h16M18 7h2M4 12h3m4 0h9"/><circle cx="16" cy="7" r="2"/><circle cx="9" cy="12" r="2"/></svg></div>
-            <h3>Quick setups</h3><p>Use Balanced, Competitive or Privacy setups when you want a fast start.</p>
-          </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 3-6"/><path d="M4 4v6h6"/></svg></div>
-            <h3>Easy undo</h3><p>Pulse saves your old values before it changes them, so you can go back.</p>
-          </article>        </div>
+    </div>
+    
+    <section id="features"><div class="wrap">
+      <div class="head reveal"><div><div class="kicker">WHAT PULSE DOES</div><h2>The useful controls, without the digging.</h2></div><p>Windows spreads important settings across old menus, new menus, and system tools. Pulse brings the supported ones together and explains them clearly.</p></div>
+      <div class="bento">
+        <article class="card wide reveal"><div class="cardicon">FPS</div><h3>Performance</h3><p>Gaming priority, background behavior, power settings, and visual controls in one place.</p><span class="number">01</span></article>
+        <article class="card narrow cyan reveal"><div class="cardicon">NET</div><h3>Network control</h3><p>Review Windows network limits, update sharing, and connectivity settings without hunting through menus.</p><span class="number">02</span></article>
+        <article class="card third green reveal"><div class="cardicon">REV</div><h3>Reversible changes</h3><p>Pulse records supported previous values so you can turn settings back off or use recovery tools.</p></article>
+        <article class="card third reveal"><div class="cardicon">ONE</div><h3>Quick setups</h3><p>Start from balanced, competitive, maximum FPS, or privacy-focused configurations.</p></article>
+        <article class="card third orange reveal"><div class="cardicon">SYS</div><h3>Useful cleanup</h3><p>Open practical Windows cleanup, repair, network, and restore tools from one focused screen.</p></article>
       </div>
-    </section>
-
-    <section id="tweaks">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="kicker">39 settings included</div>
-          <h2>Everything your setup needs.</h2>
-          <p>Gaming, privacy, network and useful Windows controls without the hard words.</p>
-        </div>
-        <div class="tweak-cloud reveal">
-          <span class="tweak-chip">Game Mode</span><span class="tweak-chip">Game DVR</span>
-          <span class="tweak-chip">GPU Scheduling</span><span class="tweak-chip">Power Throttling</span>
-          <span class="tweak-chip">Game CPU Priority</span><span class="tweak-chip">Game GPU Priority</span>
-          <span class="tweak-chip">Mouse Acceleration</span><span class="tweak-chip">Window Animations</span>
-          <span class="tweak-chip">Network Throttling</span><span class="tweak-chip">Update Sharing</span>
-          <span class="tweak-chip">Windows Tracking</span><span class="tweak-chip">Advertising ID</span>
-          <span class="tweak-chip">Activity History</span><span class="tweak-chip">Feedback Popups</span>
-          <span class="tweak-chip">Background Apps</span><span class="tweak-chip">Edge Startup</span>
-          <span class="tweak-chip">Search Indexer</span><span class="tweak-chip">Hibernation</span>
-          <span class="tweak-chip">File Extensions</span><span class="tweak-chip">Sticky Keys Popup</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="safety">
-      <div class="wrap safety">
-        <div class="safety-copy reveal">
-          <div class="kicker">Made to be undone</div>
-          <h2>Your old settings stay safe.</h2>
-          <p>Pulse saves the value it finds before making a change. Turn a switch off or use Undo Changes to put it back.</p>
-          <a class="button secondary" href="#tweaks">See included settings</a>
-        </div>
-        <div class="steps reveal">
-          <div class="step"><div class="step-number">01</div><div><b>Pulse checks the setting</b><p>The current Windows value is read first.</p></div></div>
-          <div class="step"><div class="step-number">02</div><div><b>Your old value is saved</b><p>A small backup is kept for your Windows account.</p></div></div>
-          <div class="step"><div class="step-number">03</div><div><b>You stay in control</b><p>Switch it off whenever you want to go back.</p></div></div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="cta reveal">
-          <h2>Ready to take control?</h2>
-          <p>Launch Pulse Tweaks and start with the Balanced setup.</p>
-          <div class="hero-actions">
-            <a class="button release-button" href="#release">Download project</a>
-            <a class="button secondary" href="#features">See features</a>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div></section>
+    <section class="controlsection" id="how"><div class="wrap controlgrid">
+      <div class="control reveal"><div class="kicker">HOW IT WORKS</div><h2>Every setting is shown before you apply it.</h2><p>Results depend on your PC, your Windows build, and the games you play. Pulse keeps things honest: clear controls, clear descriptions, and no made-up performance promises.</p><a class="btn ghost" href="#download">Get Pulse v0.0.1 &rarr;</a></div>
+      <div class="steps reveal"><div class="step"><div class="stepno">01</div><div><b>Activate your license</b><p>Enter the key issued through the Pulse Discord and bind it to your PC.</p></div></div><div class="step"><div class="stepno">02</div><div><b>Choose what fits</b><p>Use a quick setup or review individual controls.</p></div></div><div class="step"><div class="stepno">03</div><div><b>Change your mind anytime</b><p>Turn supported tweaks back off or use Pulse recovery options.</p></div></div></div>
+    </div></section>
+    <section id="tweaks"><div class="wrap">
+      <div class="head reveal"><div><div class="kicker">ORGANIZED SIMPLY</div><h2>Everything has a place.</h2></div><p>Settings are grouped by what you want to change, so the app stays quick to understand and easy to return to.</p></div>
+      <div class="categories"><article class="category reveal"><small>01</small><h3>Performance</h3><div class="chips"><span class="chip">Game Mode</span><span class="chip">GPU scheduling</span><span class="chip">Power plan</span><span class="chip">Visual effects</span></div></article><article class="category reveal"><small>02</small><h3>Network</h3><div class="chips"><span class="chip">Update sharing</span><span class="chip">Network limits</span><span class="chip">DNS tools</span><span class="chip">Network report</span></div></article><article class="category reveal"><small>03</small><h3>Privacy</h3><div class="chips"><span class="chip">Advertising ID</span><span class="chip">Activity history</span><span class="chip">Suggestions</span><span class="chip">Feedback</span></div></article><article class="category reveal"><small>04</small><h3>System</h3><div class="chips"><span class="chip">Background apps</span><span class="chip">Hibernation</span><span class="chip">File extensions</span><span class="chip">Recovery tools</span></div></article></div>
+    </div></section>
+    <section id="download"><div class="wrap">
+      <div class="download reveal"><div class="downloadgrid"><div><div class="kicker">PULSE V0.0.1</div><h2>Download for Windows.</h2><p>Pulse asks for administrator access because Windows does not allow standard apps to change system-level settings.</p><div class="facts"><span><i></i>Windows 10/11 x64</span><span><i></i>Version 0.0.1</span><span><i></i>License activation</span></div></div>
+        <div class="file"><div class="filehead"><span class="fileicon">EXE</span><span><b>PulseTweaks.exe</b><span>Windows executable</span></span></div><div class="meta"><div><small>VERSION</small><strong>0.0.1</strong></div><div><small>SIZE</small><strong>11.6 MB</strong></div><div><small>ARCH</small><strong>x64</strong></div></div><a class="btn" href="downloads/PulseTweaks.exe" download>Download Pulse &darr;</a><div class="hash">SHA-256: <button class="copy" id="copy" data-hash="a3baacf4f30a119de635776710cfece4376c631de701450d0e8e499242ac430f">a3baacf4f30a...242ac430f</button></div><div class="note">Only download Pulse from this page or an official Pulse link.</div></div>
+      </div></div>
+      <div class="license reveal" id="license"><div><h3>Need a license key?</h3><p>Join the Pulse Discord, open a ticket, and purchase a key.</p></div><a class="btn discord" href="https://discord.gg/2FR7EHEZ23" target="_blank" rel="noopener noreferrer">Join Discord &rarr;</a></div>
+    </div></section>
   </main>
-
-  <div class="release-modal" id="releaseModal" role="dialog" aria-modal="true" aria-labelledby="releaseTitle" hidden>
-    <div class="release-card">
-      <span class="mark" aria-hidden="true"></span>
-      <h2 id="releaseTitle">Coming soon</h2>
-      <p>Join our Discord to buy Pulse Tweaks when it releases.</p>
-      <div class="release-actions">
-        <a class="button discord-button" href="https://discord.gg/yTgjHSPf2J" target="_blank" rel="noopener noreferrer"><svg class="discord-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 6.2c3.3-1.5 6.5-1.5 9.8 0 2 2.8 3 5.8 2.7 8.9-1.8 1.8-3.8 2.8-6 3.1l-.8-1.2c1.1-.3 2-.7 2.8-1.3-2.3 1.1-4.9 1.1-7.2 0 .8.6 1.7 1 2.8 1.3l-.8 1.2c-2.2-.3-4.2-1.3-6-3.1-.3-3.1.7-6.1 2.7-8.9Z"/><circle cx="9.4" cy="12.1" r="1.25" fill="#5865f2"/><circle cx="14.6" cy="12.1" r="1.25" fill="#5865f2"/></svg><span>Join Discord</span></a>
-        <button class="button release-close" id="releaseClose" type="button">Not now</button>
-      </div>
-    </div>
-  </div>
-  <footer>
-    <div class="wrap footer-row">
-      <a class="brand" href="#top"><span class="mark"></span><span>Pulse Tweaks</span></a>
-      <span>Windows 10 and 11.</span>
-      <div class="footer-links"><a href="#features">Features</a><a href="#safety">Safety</a><a href="https://discord.gg/yTgjHSPf2J" target="_blank" rel="noopener noreferrer">Discord</a></div>
-    </div>
-  </footer>
-
+  <footer><div class="wrap footer"><a class="brand" href="#top"><span class="mark"></span><span>Pulse Tweaks<small>WINDOWS CONTROL</small></span></a><div class="footerlinks"><a href="#features">Features</a><a href="#how">How it works</a><a href="#download">Download</a><a href="https://discord.gg/2FR7EHEZ23" target="_blank" rel="noopener noreferrer">Discord</a></div><span>&copy; <span id="year"></span> Pulse Tweaks</span></div></footer>
   <script>
-    const releaseModal = document.querySelector('#releaseModal');
-    const releaseClose = document.querySelector('#releaseClose');
-
-    function openReleaseModal(event) {
-      event.preventDefault();
-      releaseModal.hidden = false;
-      requestAnimationFrame(() => releaseModal.classList.add('open'));
-      releaseClose.focus();
+    const menu=document.getElementById("menu"),links=document.getElementById("links");
+    menu.addEventListener("click",()=>{const open=links.classList.toggle("open");menu.setAttribute("aria-expanded",String(open))});
+    links.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>links.classList.remove("open")));
+    document.querySelectorAll(".toggle").forEach(t=>t.addEventListener("click",()=>{const on=t.classList.toggle("on");t.setAttribute("aria-pressed",String(on))}));
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("visible");observer.unobserve(entry.target)}}),{threshold:.12});
+    document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+    const ambient=document.getElementById("ambient");if(matchMedia("(pointer:fine)").matches)addEventListener("pointermove",e=>{ambient.style.left=e.clientX+"px";ambient.style.top=e.clientY+"px"});
+    document.getElementById("copy").addEventListener("click",async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(b.dataset.hash);const old=b.textContent;b.textContent="Copied";setTimeout(()=>b.textContent=old,1400)}catch(_){b.textContent=b.dataset.hash}});
+    const progress=document.getElementById("progress");
+    const updateProgress=()=>{const max=document.documentElement.scrollHeight-innerHeight;progress.style.width=(max>0?scrollY/max*100:0)+"%"};
+    addEventListener("scroll",updateProgress,{passive:true});updateProgress();
+    const shot=document.querySelector(".shot");
+    if(matchMedia("(pointer:fine) and (prefers-reduced-motion:no-preference)").matches){
+      shot.addEventListener("pointermove",e=>{const r=shot.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;shot.style.transform="perspective(1100px) rotateX("+(-y*2.2)+"deg) rotateY("+(x*3)+"deg) translateY(-2px)"});
+      shot.addEventListener("pointerleave",()=>shot.style.transform="");
     }
-
-    function closeReleaseModal() {
-      releaseModal.classList.remove('open');
-      window.setTimeout(() => { releaseModal.hidden = true; }, 200);
-    }
-
-    document.querySelectorAll('.release-button').forEach(button => {
-      button.addEventListener('click', openReleaseModal);
-    });
-    releaseClose.addEventListener('click', closeReleaseModal);
-    releaseModal.addEventListener('click', event => {
-      if (event.target === releaseModal) closeReleaseModal();
-    });
-    window.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !releaseModal.hidden) closeReleaseModal();
-    });
-
-    const cursorGlow = document.querySelector('#cursorGlow');
-    window.addEventListener('pointermove', event => {
-      cursorGlow.style.left = `${event.clientX}px`;
-      cursorGlow.style.top = `${event.clientY}px`;
-    }, { passive: true });
-
-    const menuButton = document.querySelector('#menuButton');
-    const navLinks = document.querySelector('#navLinks');
-    menuButton.addEventListener('click', () => {
-      const open = navLinks.classList.toggle('open');
-      menuButton.setAttribute('aria-expanded', String(open));
-    });
-
-    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-      navLinks.classList.remove('open');
-      menuButton.setAttribute('aria-expanded', 'false');
-    }));
-
-    const tabCopy = {
-      Home: ['Home', 'See your PC and choose a setup'],
-      Performance: ['Performance', 'Make Windows feel faster for games'],
-      Network: ['Network', 'Change network and download settings'],
-      Privacy: ['Privacy', 'Send less data and stop extra tracking'],
-      System: ['System', 'Control apps, files and Windows features'],
-      Cleanup: ['Cleanup', 'Clear junk and check Windows'],
-      Restore: ['Undo changes', 'Put settings back the way they were']
-    };
-
-    const realTweaks = {
-      Performance: [
-        ['Windows Game Mode', 'Gives games more attention.', true],
-        ['Disable Game DVR', 'Stops recording in the background.', true],
-        ['Disable Xbox Captures', 'Turns off Xbox screen capture.', true],
-        ['Hardware GPU Scheduling', 'Lets your graphics card plan its own work.', false],
-        ['Disable Power Throttling', 'Stops Windows from slowing tasks down.', true]
-      ],
-      Network: [
-        ['Disable Network Throttling', 'Stops Windows from slowing game traffic.', true],
-        ['Limit Delivery Optimization', 'Stops sharing Windows updates with other PCs.', true],
-        ['Disable LLMNR', 'Turns off an old local network lookup tool.', false],
-        ['No Reserved QoS Bandwidth', 'Stops Windows from holding back network speed.', true]
-      ],
-      Privacy: [
-        ['Minimum Windows Telemetry', 'Sends less system data to Microsoft.', true],
-        ['Disable Advertising ID', 'Stops apps from using your ad ID.', true],
-        ['Disable Activity History', 'Stops Windows from saving your activity list.', false],
-        ['Disable Feedback Prompts', 'Stops Windows feedback popups.', true],
-        ['Disable Tips & Suggestions', 'Turns off Windows tips and ads.', true]
-      ],
-      System: [
-        ['Disable Background Apps', 'Stops Store apps from running when closed.', true],
-        ['Disable Edge Startup Boost', 'Stops Edge from loading when Windows starts.', true],
-        ['Disable Search Indexer', 'Stops Windows from scanning files for search.', false],
-        ['Disable Hibernation', 'Turns off hibernate and saves drive space.', false],
-        ['Show File Extensions', 'Shows .exe, .png and other file endings.', true]
-      ]
-    };
-
-    const switchItem = ([title, description, enabled]) => `
-      <div class="demo-item">
-        <span class="item-icon"></span>
-        <span class="item-copy"><b>${title}</b><small>${description}</small></span>
-        <button class="switch ${enabled ? 'on' : ''}" aria-label="Toggle ${title}"></button>
-      </div>`;
-
-    function bindDemoSwitches() {
-      document.querySelectorAll('#demoList .switch').forEach(toggle => {
-        toggle.addEventListener('click', () => toggle.classList.toggle('on'));
-      });
-    }
-
-    function renderTab(name) {
-      const copy = tabCopy[name];
-      const list = document.querySelector('#demoList');
-      const metrics = document.querySelector('#demoMetrics');
-      const badge = document.querySelector('#demoBadge');
-      document.querySelector('#demoTitle').textContent = copy[0];
-      document.querySelector('#demoSubtitle').textContent = copy[1];
-      metrics.style.display = name === 'Home' ? 'grid' : 'none';
-
-      if (name === 'Home') {
-        badge.textContent = 'QUICK SETUPS';
-        const presets = [
-          ['Balanced', 'Simple changes for a faster PC'],
-          ['Competitive', 'More speed and fewer background tasks'],
-          ['Privacy', 'Less tracking, data sharing and popups']
-        ];
-        list.innerHTML = presets.map(([title, description]) => `
-          <div class="demo-item">
-            <span class="item-icon"></span>
-            <span class="item-copy"><b>${title}</b><small>${description}</small></span>
-            <button class="demo-action">APPLY</button>
-          </div>`).join('');
-      } else if (name === 'Cleanup') {
-        badge.textContent = 'TOOLS';
-        const tools = [
-          ['Temporary files', 'Clear safe files from your Temp folder.', 'CLEAN'],
-          ['DNS cache', 'Refresh saved website and game addresses.', 'FLUSH'],
-          ['Recycle Bin', 'Empty files you already deleted.', 'EMPTY'],
-          ['Restore point', 'Save Windows before deeper changes.', 'CREATE']
-        ];
-        list.innerHTML = tools.map(([title, description, action]) => `
-          <div class="demo-item tool-card">
-            <span class="item-icon"></span>
-            <span class="item-copy"><b>${title}</b><small>${description}</small></span>
-            <button class="demo-action">${action}</button>
-          </div>`).join('');
-      } else if (name === 'Restore') {
-        badge.textContent = 'BACKUPS';
-        list.innerHTML = `<div class="restore-demo">
-          <strong>14 saved changes</strong>
-          <p>Only settings changed by Pulse Tweaks will be put back.</p>
-          <button class="demo-action">RESTORE ALL CHANGES</button>
-        </div>`;
-      } else {
-        badge.textContent = `${realTweaks[name].length} SHOWN`;
-        list.innerHTML = realTweaks[name].map(switchItem).join('');
-        bindDemoSwitches();
-      }
-    }
-
-    document.querySelectorAll('.demo-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.demo-tab').forEach(item => item.classList.remove('active'));
-        tab.classList.add('active');
-        renderTab(tab.dataset.tab);
-      });
-    });
-
-    renderTab('Home');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: .12 });
-
-    document.querySelectorAll('.reveal').forEach(item => observer.observe(item));
+    document.getElementById("year").textContent=new Date().getFullYear();
   </script>
 </body>
 </html>
